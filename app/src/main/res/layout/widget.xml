@@ -1,0 +1,14 @@
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent" android:layout_height="match_parent"
+    android:orientation="vertical" android:background="@drawable/widget_bg" android:padding="16dp">
+    <TextView android:id="@+id/w_title" android:layout_width="match_parent" android:layout_height="wrap_content"
+        android:text="Heute" android:textColor="#F2F4F8" android:textSize="22sp" android:textStyle="bold"/>
+    <TextView android:id="@+id/w_date" android:layout_width="match_parent" android:layout_height="wrap_content"
+        android:textColor="#8B93A5" android:textSize="12sp" android:layout_marginBottom="8dp"/>
+    <FrameLayout android:layout_width="match_parent" android:layout_height="0dp" android:layout_weight="1">
+        <ListView android:id="@+id/w_list" android:layout_width="match_parent" android:layout_height="match_parent"
+            android:divider="@android:color/transparent" android:dividerHeight="0dp"/>
+        <TextView android:id="@+id/w_empty" android:layout_width="match_parent" android:layout_height="match_parent"
+            android:gravity="center" android:text="Heute ist nichts geplant" android:textColor="#8B93A5" android:textSize="14sp"/>
+    </FrameLayout>
+</LinearLayout>
