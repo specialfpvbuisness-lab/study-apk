@@ -68,11 +68,23 @@ object Planner {
     }.timeInMillis
     fun overlaps(l: List<Item>, s: Long, e: Long) = l.any { it.start < e && s < it.end }
 
-    // Plant nach jeder Vorlesung einen Übungsblock im ersten freien Slot (Raster 15 Min) innerhalb des Tagesfensters.
+    // 1) tägliche Freizeit (AFREE) zur Wunschzeit, 2) Übungsblock (AUTO) nach jeder Vorlesung – alles im Tagesfenster, Raster 15 Min
     fun autoPlan(c: Context, items: MutableList<Item>) {
+        val now = System.currentTimeMillis()
+        items.removeAll { (it.kind == "AFREE" || (it.kind == "AUTO" && !it.done)) && it.end > now }
         val ds = Prefs.int(c, "ds", 6).coerceIn(6, 22); val de = Prefs.int(c, "de", 22).coerceIn(ds, 22)
         val dur = Prefs.int(c, "dur", 45) * 60000L
-        val now = System.currentTimeMillis()
+        val fd = Prefs.int(c, "fd", 90) * 60000L
+        val fh = when (Prefs.int(c, "ft", 2)) { 0 -> ds; 1 -> 12; else -> 18 }.coerceIn(ds, de)
+        for (d in 0..6) {
+            val day = Calendar.getInstance().apply { timeInMillis = now; add(Calendar.DAY_OF_YEAR, d) }.timeInMillis
+            val limit = at(day, de)
+            var s = maxOf(at(day, fh), now)
+            while (s + fd <= limit) {
+                if (!overlaps(items, s, s + fd)) { items.add(Item(id(), "Freizeit", s, s + fd, "AFREE")); break }
+                s += 15 * 60000L
+            }
+        }
         for (lec in items.filter { it.kind == "LECTURE" && it.end > now }.sortedBy { it.start }) {
             val limit = at(lec.end, de)
             var s = maxOf(lec.end, at(lec.end, ds))
